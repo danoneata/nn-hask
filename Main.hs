@@ -1,4 +1,3 @@
-
 type Output = Float
 type Weight = Float
 type Input = Float
