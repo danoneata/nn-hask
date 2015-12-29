@@ -20,7 +20,8 @@ w = [1,1,1,1,1]
 layer1Weights = [w,w,w,w,w]
 layer2Weights = [w,w,w,w,w,w,w]
 
-sigma :: Float -> Float
+-- TODO: this signature vs just Activation.
+sigma :: Floating a => a -> a
 sigma x = 1 / (1 + exp (-x))
 
 network =
