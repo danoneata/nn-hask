@@ -1,26 +1,32 @@
 import Control.Monad.Random (getRandoms, MonadRandom)
+import Numeric.LinearAlgebra ((|>), norm_2, sumElements)
+import Numeric.LinearAlgebra.Data (
+    Matrix,
+    R,
+    Vector,
+    asRow,
+    cmap,
+    diagl,
+    fromList,
+    ident,
+    scalar,
+    size,
+    toColumns,
+    toList,
+    toRows)
 
-import Numeric.LinearAlgebra ((|>), sumElements, norm_2)
-import Numeric.LinearAlgebra.Data (fromList, toList, size, R, Vector)
-
+eps :: R
 eps = 10 ** (-8)
-
-updateList :: Vector R -> Int -> R -> Vector R
-updateList vector index newElem =
-    fromList $ zipWith match (toList vector) [0..]
-  where
-    match elem currentIndex =
-      if currentIndex == index
-      then newElem
-      else elem
+dim = 10
 
 checkGrad :: MonadRandom m => (Vector R -> R) -> (Vector R -> Vector R) -> m (Vector R, Vector R)
 checkGrad f f' =
    do
      -- TODO: ensure neither f nor f' depend on weights length.
-     randomWeights <- fromList <$> take 10 <$> getRandoms
-     let perturb elem index op = f $ updateList randomWeights index (elem `op` eps)
-     let numericalDerivative = fromList $ zipWith (\elem index -> (perturb elem index (+) - perturb elem index (-)) / (2 * eps)) (toList randomWeights) [0..]
+     randomWeights <- fromList <$> take dim <$> getRandoms
+     let epsMatrix = scalar eps * ident dim
+     let perturb op = fromList $ map f $ toRows $ asRow randomWeights `op` epsMatrix
+     let numericalDerivative = (perturb (+) - perturb (-)) / scalar (2 * eps)
      let estimatedDerivative = f' randomWeights
      let diffNorm = norm_2 $ numericalDerivative - estimatedDerivative
      let sumNorm  = norm_2 $ numericalDerivative + estimatedDerivative
