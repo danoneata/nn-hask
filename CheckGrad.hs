@@ -1,8 +1,8 @@
 import Control.Monad.Random
 
-type Weights = [Float]
+type Weights = [Double]
 
-eps = 5 * 10 ** (-6)
+eps = 10 ** (-8)
 
 updateList :: [a] -> Int -> a -> [a]
 updateList list index newElem =
@@ -13,10 +13,10 @@ updateList list index newElem =
       then newElem
       else elem
 
-norm :: Weights -> Float
+norm :: Weights -> Double
 norm xs = sqrt $ sum $ map (**2) xs
 
-checkGrad :: MonadRandom m => (Weights -> Float) -> (Weights -> Weights) -> m (Weights, Weights)
+checkGrad :: MonadRandom m => (Weights -> Double) -> (Weights -> Weights) -> m (Weights, Weights)
 checkGrad f f' =
   do
     -- TODO: ensure neither f nor f' depend on weights length.
@@ -33,14 +33,14 @@ checkGrad f f' =
     return (numericalDerivative, estimatedDerivative)
 
 
-f1 :: [Float] -> Float
+f1 :: [Double] -> Double
 f1 = sum
 
-f1' :: [Float] -> [Float]
+f1' :: [Double] -> [Double]
 f1' = map (\_ -> 1)
 
-f2 :: [Float] -> Float
+f2 :: [Double] -> Double
 f2 = sum . map (**2)
 
-f2' :: [Float] -> [Float]
+f2' :: [Double] -> [Double]
 f2' = map (2*)
