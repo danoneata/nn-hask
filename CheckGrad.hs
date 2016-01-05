@@ -23,7 +23,7 @@ wrapAD :: Double -> ApproximateDouble
 wrapAD = AbsolutelyApproximateValue
 
 eps :: R
-eps = 10 ** (-8)
+eps = 1e-8
 dim = 10
 
 approxEquality :: Double -> Double -> Bool
