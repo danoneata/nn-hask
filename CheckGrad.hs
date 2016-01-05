@@ -1,4 +1,5 @@
 import Control.Monad.Random (getRandoms, MonadRandom)
+import Data.Eq.Approximate (AbsolutelyApproximateValue (..), Digits)
 import Numeric.LinearAlgebra ((|>), norm_2, sumElements)
 import Numeric.LinearAlgebra.Data (
     Matrix,
@@ -14,12 +15,25 @@ import Numeric.LinearAlgebra.Data (
     toColumns,
     toList,
     toRows)
+import TypeLevel.NaturalNumber (Seven)
 
 eps :: R
 eps = 10 ** (-8)
 dim = 10
 
-checkGrad :: MonadRandom m => (Vector R -> R) -> (Vector R -> Vector R) -> m (Vector R, Vector R)
+type ApproximateDouble = AbsolutelyApproximateValue (Digits Seven) Double
+
+wrapAD :: Double -> ApproximateDouble
+wrapAD = AbsolutelyApproximateValue
+
+approxEquality :: Double -> Double -> Bool
+approxEquality a b = (wrapAD a) == (wrapAD b)
+
+approxEqualVectors :: Vector Double -> Vector Double -> Bool
+approxEqualVectors a b =
+  and $ zipWith approxEquality (toList a) (toList b)
+
+checkGrad :: MonadRandom m => (Vector R -> R) -> (Vector R -> Vector R) -> m Bool
 checkGrad f f' =
    do
      -- TODO: ensure neither f nor f' depend on weights length.
@@ -30,11 +44,7 @@ checkGrad f f' =
      let estimatedDerivative = f' randomWeights
      let diffNorm = norm_2 $ numericalDerivative - estimatedDerivative
      let sumNorm  = norm_2 $ numericalDerivative + estimatedDerivative
---     -- a list of random weights
---     -- compute derivative for each of them
---     -- compare with result of f' for that particular weight
---     -- return $ diffNorm / sumNorm
-     return (numericalDerivative, estimatedDerivative)
+     return $ approxEqualVectors numericalDerivative estimatedDerivative
 
 -- Some simple functions and their gradients
 
