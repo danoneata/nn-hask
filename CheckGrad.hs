@@ -44,7 +44,8 @@ checkGrad f f' =
     let estimatedDerivative = f' randomWeights
     let diffNorm = norm_2 $ numericalDerivative - estimatedDerivative
     let sumNorm  = norm_2 $ numericalDerivative + estimatedDerivative
-    return $ approxEqualVectors numericalDerivative estimatedDerivative
+    -- return $ approxEqualVectors numericalDerivative estimatedDerivative
+    return $ diffNorm / sumNorm < 1e-7
 
 -- Some simple functions and their gradients
 
