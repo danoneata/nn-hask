@@ -17,14 +17,14 @@ import Numeric.LinearAlgebra.Data (
     toRows)
 import TypeLevel.NaturalNumber (Seven)
 
-eps :: R
-eps = 10 ** (-8)
-dim = 10
-
 type ApproximateDouble = AbsolutelyApproximateValue (Digits Seven) Double
 
 wrapAD :: Double -> ApproximateDouble
 wrapAD = AbsolutelyApproximateValue
+
+eps :: R
+eps = 10 ** (-8)
+dim = 10
 
 approxEquality :: Double -> Double -> Bool
 approxEquality a b = (wrapAD a) == (wrapAD b)
